@@ -1,7 +1,7 @@
 # Proyecto Videojuego - Etapa 1
 
 ## Jefer Espi
-![Foto](Jefer/character.jpg)
+![Foto](yo.jpg)
 
 **Rol:** Programador/Artista  
 **Ubicación:** Colombia  
