@@ -11,5 +11,11 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Game.Unity
     guid: 8e605e56036b2e446a766c8e8051f968
+  - enabled: 1
+    path: Assets/Scenes/Instrucciones.unity
+    guid: e9f1ceecb924e5a4390025579bc0c7f0
+  - enabled: 1
+    path: Assets/Scenes/Personajes.unity
+    guid: ab7f346060ecbd84d8607b19b82b81a5
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0
