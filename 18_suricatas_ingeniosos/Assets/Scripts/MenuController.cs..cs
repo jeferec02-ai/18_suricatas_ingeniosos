@@ -3,14 +3,24 @@ using UnityEngine.SceneManagement;
 
 public class MenuController : MonoBehaviour
 {
-    public void Jugar()
+    public void IrAJuego()
     {
-        SceneManager.LoadScene("Nivel1"); // Reemplaza con el nombre exacto de tu escena del juego
+        SceneManager.LoadScene("Game");
     }
 
-    public void Salir()
+    public void IrAInstrucciones()
+    {
+        SceneManager.LoadScene("Instrucciones");
+    }
+
+    public void IrAPersonajes()
+    {
+        SceneManager.LoadScene("Personajes");
+    }
+
+    public void SalirDelJuego()
     {
         Application.Quit();
-        Debug.Log("Salir del juego");
+        Debug.Log("El juego se ha cerrado.");
     }
 }
