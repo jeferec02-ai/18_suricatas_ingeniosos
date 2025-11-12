@@ -364,7 +364,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 7823414ec74443445b929c4f5881e89e, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 5
+      value: 2.99
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 7823414ec74443445b929c4f5881e89e, type: 3}
       propertyPath: m_LocalPosition.z
@@ -401,6 +401,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 7823414ec74443445b929c4f5881e89e, type: 3}
       propertyPath: m_Name
       value: aku_model
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 7823414ec74443445b929c4f5881e89e, type: 3}
+      propertyPath: m_TagString
+      value: Player
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -494,12 +498,20 @@ PrefabInstance:
       value: 388.19513
       objectReference: {fileID: 0}
     - target: {fileID: -4292154010595695564, guid: 585dc4a702bad0f4587662edccd3993c, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -4292154010595695564, guid: 585dc4a702bad0f4587662edccd3993c, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.000000022418
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 585dc4a702bad0f4587662edccd3993c, type: 3}
       propertyPath: m_Name
       value: Arena
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 585dc4a702bad0f4587662edccd3993c, type: 3}
+      propertyPath: m_TagString
+      value: Suelo
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects:
@@ -689,7 +701,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -929,7 +941,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 6c1192f2f7d133643bbeb73a96ec7b6e, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 2.99
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 6c1192f2f7d133643bbeb73a96ec7b6e, type: 3}
       propertyPath: m_LocalPosition.z
@@ -1006,7 +1018,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 7455d63db7f572646962d2773b431798, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 2.99
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 7455d63db7f572646962d2773b431798, type: 3}
       propertyPath: m_LocalPosition.z
@@ -1293,7 +1305,7 @@ Animator:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1755501308}
-  m_Enabled: 0
+  m_Enabled: 1
   m_Avatar: {fileID: 0}
   m_Controller: {fileID: 9100000, guid: 0c7ef418223faba418c6bf975e44799b, type: 2}
   m_CullingMode: 0
@@ -1327,7 +1339,7 @@ BoxCollider:
   m_Enabled: 1
   serializedVersion: 3
   m_Size: {x: 0.6, y: 1.2, z: 0.4}
-  m_Center: {x: 0, y: 5, z: 0}
+  m_Center: {x: 0, y: 0.5, z: 0}
 --- !u!54 &1755501314
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1336,7 +1348,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1755501308}
   serializedVersion: 5
-  m_Mass: 1
+  m_Mass: 3
   m_LinearDamping: 0
   m_AngularDamping: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
@@ -1352,7 +1364,7 @@ Rigidbody:
   m_ImplicitTensor: 1
   m_UseGravity: 1
   m_IsKinematic: 0
-  m_Interpolate: 0
+  m_Interpolate: 1
   m_Constraints: 0
   m_CollisionDetection: 0
 --- !u!114 &1755501315
@@ -1372,10 +1384,10 @@ MonoBehaviour:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
-  - {fileID: 687077273}
   - {fileID: 1466460857}
   - {fileID: 969865894}
   - {fileID: 1542429821}
   - {fileID: 1091389963}
   - {fileID: 257460880}
   - {fileID: 1355528900}
+  - {fileID: 687077273}
