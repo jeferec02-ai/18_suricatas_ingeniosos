@@ -4,15 +4,18 @@ using UnityEngine;
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
-    public GameObject playerPrefab;
-    public Transform[] spawnPoints;
-    public int playersCount = 2;
+
+    public GameObject playerPrefab;       // Prefab del jugador
+    public Transform[] spawnPoints;       // Lugares donde aparecerán los jugadores
+    public int playersCount = 1;          // Cantidad de jugadores
     public List<GameObject> players = new List<GameObject>();
 
     void Awake()
     {
-        if (Instance == null) Instance = this;
-        else Destroy(gameObject);
+        if (Instance == null) 
+            Instance = this;
+        else 
+            Destroy(gameObject);
     }
 
     void Start()
@@ -22,46 +25,51 @@ public class GameManager : MonoBehaviour
 
     public void StartRound()
     {
-        // limpiar anteriores
-        foreach(var p in players) if(p) Destroy(p);
+        // eliminar jugadores anteriores
+        foreach (var p in players)
+        {
+            Destroy(p);
+        }
         players.Clear();
 
+        // instanciar jugadores según playersCount
         for (int i = 0; i < playersCount; i++)
         {
-            Transform sp = spawnPoints.Length > i ? spawnPoints[i] : spawnPoints[0];
+            // Verifica que haya suficientes puntos de spawn
+            if (i >= spawnPoints.Length)
+            {
+                Debug.LogError("No hay suficientes spawnPoints asignados en el GameManager");
+                return;
+            }
+
+            Transform sp = spawnPoints[i];
             GameObject p = Instantiate(playerPrefab, sp.position, Quaternion.identity);
-            p.name = "Player" + (i+1);
-            PlayerController pc = p.GetComponent<PlayerController>();
-            pc.playerId = i + 1;
-            // asignar UI sliders, etc
+
+            // asignar id único para input
+            var controller = p.GetComponent<PlayerController>();
+            if (controller != null)
+            {
+                controller.playerId = i + 1;
+            }
+
             players.Add(p);
         }
 
-        // spawn hazards (ejemplo: n fogatas alrededor)
         SpawnHazards();
     }
 
     void SpawnHazards()
     {
-        // puedes instanciar prefabs FireHazard en posiciones aleatorias del área
+        // Aquí van los hazards si luego los agregas
     }
 
     public void PlayerDied(GameObject player)
     {
-        // control de ronda: si sólo queda 1 jugador -> declarar ganador
-        int alive = 0;
-        GameObject last = null;
-        foreach(var p in players)
-        {
-            if (p != null && p.activeSelf) { alive++; last = p; }
-        }
+        players.Remove(player);
 
-        if (alive <= 1)
+        if (players.Count == 1)
         {
-            // ganador = last
-            Debug.Log("Winner: " + (last ? last.name : "nobody"));
-            // mostrar UI y reiniciar ronda tras delay
-            Invoke(nameof(StartRound), 3f);
+            Debug.Log("GANADOR: " + players[0].name);
         }
     }
 }
