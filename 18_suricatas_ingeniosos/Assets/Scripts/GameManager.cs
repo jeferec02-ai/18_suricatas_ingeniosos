@@ -1,75 +1,84 @@
-using System.Collections.Generic;
 using UnityEngine;
+using System.Collections.Generic;
+using UnityEngine.UI; // Necesario para mostrar texto o imágenes
 
 public class GameManager : MonoBehaviour
 {
-    public static GameManager Instance;
-
-    public GameObject playerPrefab;       // Prefab del jugador
-    public Transform[] spawnPoints;       // Lugares donde aparecerán los jugadores
-    public int playersCount = 1;          // Cantidad de jugadores
-    public List<GameObject> players = new List<GameObject>();
-
-    void Awake()
-    {
-        if (Instance == null) 
-            Instance = this;
-        else 
-            Destroy(gameObject);
-    }
+    [Tooltip("Arrastra a todos los avatares (Tomy, Valak, etc.) aquí.")]
+    public List<GameObject> allPlayers; 
+    
+    [Header("UI y Puntuación")]
+    public Text scoreText; // Asigna un objeto Text UI aquí
+    public GameObject winnerPanel; // Asigna un Panel/Imagen con el texto "Winner" aquí
+    
+    private int playersRemaining;
+    private int score = 0;
 
     void Start()
     {
-        StartRound();
+        playersRemaining = allPlayers.Count;
+        
+        // Esconde el panel de victoria al inicio
+        if (winnerPanel != null)
+            winnerPanel.SetActive(false);
+            
+        UpdateScoreDisplay();
     }
 
-    public void StartRound()
+    public void PlayerLost(GameObject player)
     {
-        // eliminar jugadores anteriores
-        foreach (var p in players)
+        // Nos aseguramos de que el jugador no se cuente dos veces si choca varias veces
+        if (player.activeSelf) 
         {
-            Destroy(p);
-        }
-        players.Clear();
+            playersRemaining--;
+            Debug.Log(player.name + " ha perdido. Quedan: " + playersRemaining);
 
-        // instanciar jugadores según playersCount
-        for (int i = 0; i < playersCount; i++)
+            CheckWinCondition();
+        }
+    }
+
+    void CheckWinCondition()
+    {
+        // 1. CONDICIÓN DE VICTORIA: Queda solo 1 jugador (o ninguno)
+        if (playersRemaining <= 1)
         {
-            // Verifica que haya suficientes puntos de spawn
-            if (i >= spawnPoints.Length)
+            Time.timeScale = 0; // Detiene el tiempo en el juego
+            
+            // Encuentra al ganador (el último activo)
+            string winnerName = "Nadie";
+            foreach (var player in allPlayers)
             {
-                Debug.LogError("No hay suficientes spawnPoints asignados en el GameManager");
-                return;
+                if (player.activeSelf)
+                {
+                    winnerName = player.name;
+                    break;
+                }
             }
 
-            Transform sp = spawnPoints[i];
-            GameObject p = Instantiate(playerPrefab, sp.position, Quaternion.identity);
-
-            // asignar id único para input
-            var controller = p.GetComponent<PlayerController>();
-            if (controller != null)
+            // Muestra la imagen de "Winner"
+            if (winnerPanel != null)
             {
-                controller.playerId = i + 1;
+                winnerPanel.SetActive(true);
+                // Opcional: Si tienes un Text dentro del panel, puedes poner:
+                // winnerPanel.GetComponentInChildren<Text>().text = "¡Ganador: " + winnerName + "!";
             }
-
-            players.Add(p);
+            
+            Debug.Log("Juego Terminado. Ganador: " + winnerName);
         }
-
-        SpawnHazards();
     }
-
-    void SpawnHazards()
+    
+    // 2. CONTADOR DE SALTOS
+    public void AddScore()
     {
-        // Aquí van los hazards si luego los agregas
+        score++;
+        UpdateScoreDisplay();
     }
-
-    public void PlayerDied(GameObject player)
+    
+    void UpdateScoreDisplay()
     {
-        players.Remove(player);
-
-        if (players.Count == 1)
+        if (scoreText != null)
         {
-            Debug.Log("GANADOR: " + players[0].name);
+            scoreText.text = "Saltos: " + score.ToString();
         }
     }
 }
