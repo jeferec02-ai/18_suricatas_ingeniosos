@@ -1,9 +1,13 @@
 using UnityEngine;
 using System.Collections.Generic;
-using UnityEngine.UI; // Necesario para mostrar texto o imágenes
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
+    // --- CAMBIO CLAVE 1: Implementación del Singleton ---
+    public static GameManager Instance; 
+    // --------------------------------------------------
+
     [Tooltip("Arrastra a todos los avatares (Tomy, Valak, etc.) aquí.")]
     public List<GameObject> allPlayers; 
     
@@ -13,6 +17,24 @@ public class GameManager : MonoBehaviour
     
     private int playersRemaining;
     private int score = 0;
+
+    // --- CAMBIO CLAVE 2: Función Awake para configurar el Singleton ---
+    void Awake() 
+    {
+        // Si no hay una instancia (Instance) creada, esta será la única.
+        if (Instance == null)
+        {
+            Instance = this;
+            // Si el GameManager debe sobrevivir entre escenas, descomenta la línea de abajo:
+            // DontDestroyOnLoad(gameObject); 
+        }
+        else
+        {
+            // Si ya hay otro GameManager, destruye este duplicado.
+            Destroy(gameObject); 
+        }
+    }
+    // -----------------------------------------------------------------
 
     void Start()
     {
@@ -59,8 +81,6 @@ public class GameManager : MonoBehaviour
             if (winnerPanel != null)
             {
                 winnerPanel.SetActive(true);
-                // Opcional: Si tienes un Text dentro del panel, puedes poner:
-                // winnerPanel.GetComponentInChildren<Text>().text = "¡Ganador: " + winnerName + "!";
             }
             
             Debug.Log("Juego Terminado. Ganador: " + winnerName);
