@@ -2,69 +2,39 @@ using UnityEngine;
 
 public class JumpController : MonoBehaviour
 {
-    // --- Variables Públicas para Ajuste ---
-    [Tooltip("La fuerza vertical que se aplicará para el salto.")]
-    public float jumpForce = 5f;
-    
-    // Cada personaje usará una tecla diferente (configúrala en el Inspector).
-    [Tooltip("La tecla que activará el salto (ejemplo: KeyCode.Space).")]
-    public KeyCode jumpKey = KeyCode.Space; 
+    [Header("Animator")]
+    private Animator animator;
 
-    // --- Componentes Privados ---
-    private Rigidbody rb;
-    private Animator anim; // Componente para la animación
-    private bool isGrounded = true; 
+    [Header("Jump Settings")]
+    public KeyCode jumpKey = KeyCode.Space;
 
+    private bool isJumping = false;
 
-    void Start()
+    void Awake()
     {
-        rb = GetComponent<Rigidbody>();
-        anim = GetComponent<Animator>(); // Obtenemos el Animator
+        // Busca automáticamente el Animator en el personaje o sus hijos
+        animator = GetComponentInChildren<Animator>();
 
-        if (rb == null)
-        {
-            Debug.LogError("ERROR: Rigidbody no encontrado en " + gameObject.name);
-        }
-        if (anim == null)
-        {
-            Debug.LogWarning("Advertencia: Animator no encontrado en " + gameObject.name + ". El salto físico funcionará, pero no la animación.");
-        }
+        if (animator == null)
+            Debug.LogError("No se encontró Animator en " + gameObject.name);
     }
-
 
     void Update()
     {
-        // Revisa si la tecla de salto para este personaje ha sido presionada Y si está en el suelo.
-        if (Input.GetKeyDown(jumpKey) && isGrounded)
+        if (Input.GetKeyDown(jumpKey) && !isJumping)
         {
-            Jump();
+            StartJump();
         }
     }
 
-
-    void Jump()
+    void StartJump()
     {
-        isGrounded = false;
-
-        // 1. Activa la animación
-        if (anim != null)
-        {
-            // Activa el Trigger llamado "Jump" que creamos en el Animator Controller.
-            anim.SetTrigger("Jump"); 
-        }
-        
-        // 2. Aplica la fuerza física
-        rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+        isJumping = true;
+        animator.SetTrigger("Jump");
     }
 
-
-    // Detección de Colisión (Para Resetear el Salto)
-    private void OnCollisionEnter(Collision collision)
+    public void EndJump()
     {
-        // Asegúrate de que el suelo tiene la etiqueta "Ground" o el nombre "Plane".
-        if (collision.gameObject.CompareTag("Ground") || collision.gameObject.name == "Plane")
-        {
-            isGrounded = true;
-        }
+        isJumping = false;
     }
 }
