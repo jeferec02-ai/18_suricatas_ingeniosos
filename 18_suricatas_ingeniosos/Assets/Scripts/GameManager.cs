@@ -1,67 +1,72 @@
-using System.Collections.Generic;
 using UnityEngine;
+using System.Collections;
 
 public class GameManager : MonoBehaviour
 {
-    public static GameManager Instance;
-    public GameObject playerPrefab;
-    public Transform[] spawnPoints;
-    public int playersCount = 2;
-    public List<GameObject> players = new List<GameObject>();
+    // Singleton (ambas formas)
+    public static GameManager instance;
+    public static GameManager Instance => instance;
+
+    [Header("Players")]
+    public GameObject[] players;
+
+    [Header("Audio")]
+    public AudioClip loseSound;
+    public AudioClip winSound;
+
+    private AudioSource audioSource;
+    private bool gameEnded = false;
 
     void Awake()
     {
-        if (Instance == null) Instance = this;
-        else Destroy(gameObject);
-    }
-
-    void Start()
-    {
-        StartRound();
-    }
-
-    public void StartRound()
-    {
-        // limpiar anteriores
-        foreach(var p in players) if(p) Destroy(p);
-        players.Clear();
-
-        for (int i = 0; i < playersCount; i++)
+        if (instance == null)
+            instance = this;
+        else
         {
-            Transform sp = spawnPoints.Length > i ? spawnPoints[i] : spawnPoints[0];
-            GameObject p = Instantiate(playerPrefab, sp.position, Quaternion.identity);
-            p.name = "Player" + (i+1);
-            PlayerController pc = p.GetComponent<PlayerController>();
-            pc.playerId = i + 1;
-            // asignar UI sliders, etc
-            players.Add(p);
+            Destroy(gameObject);
+            return;
         }
 
-        // spawn hazards (ejemplo: n fogatas alrededor)
-        SpawnHazards();
+        audioSource = GetComponent<AudioSource>();
     }
 
-    void SpawnHazards()
+    public void CheckGameState()
     {
-        // puedes instanciar prefabs FireHazard en posiciones aleatorias del área
+        if (gameEnded) return;
+
+        int alivePlayers = 0;
+        GameObject lastPlayerAlive = null;
+
+        foreach (GameObject player in players)
+        {
+            if (player.activeInHierarchy)
+            {
+                alivePlayers++;
+                lastPlayerAlive = player;
+            }
+        }
+
+        if (alivePlayers == 1)
+        {
+            gameEnded = true;
+            StartCoroutine(EndGame(lastPlayerAlive));
+        }
     }
 
-    public void PlayerDied(GameObject player)
+    IEnumerator EndGame(GameObject winner)
     {
-        // control de ronda: si sólo queda 1 jugador -> declarar ganador
-        int alive = 0;
-        GameObject last = null;
-        foreach(var p in players)
-        {
-            if (p != null && p.activeSelf) { alive++; last = p; }
-        }
+        // 🔥 Perdedor x2
+        audioSource.PlayOneShot(loseSound);
+        yield return new WaitForSeconds(loseSound.length);
+        audioSource.PlayOneShot(loseSound);
 
-        if (alive <= 1)
-        {
-            // ganador = last
-            Debug.Log("Winner: " + (last ? last.name : "nobody"));
-            // mostrar UI y reiniciar ronda tras delay
-            Invoke(nameof(StartRound), 3f);
-        }
+        yield return new WaitForSeconds(0.5f);
+
+        // 🏆 Ganador x2
+        audioSource.PlayOneShot(winSound);
+        yield return new WaitForSeconds(winSound.length);
+        audioSource.PlayOneShot(winSound);
+
+        Debug.Log("GANADOR: " + winner.name);
     }
 }
