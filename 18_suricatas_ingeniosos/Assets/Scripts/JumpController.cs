@@ -8,11 +8,8 @@ public class JumpController : MonoBehaviour
     [Header("Jump Settings")]
     public KeyCode jumpKey = KeyCode.Space;
 
-    private bool isJumping = false;
-
     void Awake()
     {
-        // Busca automáticamente el Animator en el personaje o sus hijos
         animator = GetComponentInChildren<Animator>();
 
         if (animator == null)
@@ -21,20 +18,9 @@ public class JumpController : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(jumpKey) && !isJumping)
+        if (Input.GetKeyDown(jumpKey))
         {
-            StartJump();
+            animator.SetTrigger("Jump");
         }
-    }
-
-    void StartJump()
-    {
-        isJumping = true;
-        animator.SetTrigger("Jump");
-    }
-
-    public void EndJump()
-    {
-        isJumping = false;
     }
 }
