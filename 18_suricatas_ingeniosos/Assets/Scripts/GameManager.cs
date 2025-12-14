@@ -1,104 +1,72 @@
 using UnityEngine;
-using System.Collections.Generic;
-using UnityEngine.UI;
+using System.Collections;
 
 public class GameManager : MonoBehaviour
 {
-    // --- CAMBIO CLAVE 1: Implementación del Singleton ---
-    public static GameManager Instance; 
-    // --------------------------------------------------
+    // Singleton (ambas formas)
+    public static GameManager instance;
+    public static GameManager Instance => instance;
 
-    [Tooltip("Arrastra a todos los avatares (Tomy, Valak, etc.) aquí.")]
-    public List<GameObject> allPlayers; 
-    
-    [Header("UI y Puntuación")]
-    public Text scoreText; // Asigna un objeto Text UI aquí
-    public GameObject winnerPanel; // Asigna un Panel/Imagen con el texto "Winner" aquí
-    
-    private int playersRemaining;
-    private int score = 0;
+    [Header("Players")]
+    public GameObject[] players;
 
-    // --- CAMBIO CLAVE 2: Función Awake para configurar el Singleton ---
-    void Awake() 
+    [Header("Audio")]
+    public AudioClip loseSound;
+    public AudioClip winSound;
+
+    private AudioSource audioSource;
+    private bool gameEnded = false;
+
+    void Awake()
     {
-        // Si no hay una instancia (Instance) creada, esta será la única.
-        if (Instance == null)
-        {
-            Instance = this;
-            // Si el GameManager debe sobrevivir entre escenas, descomenta la línea de abajo:
-            // DontDestroyOnLoad(gameObject); 
-        }
+        if (instance == null)
+            instance = this;
         else
         {
-            // Si ya hay otro GameManager, destruye este duplicado.
-            Destroy(gameObject); 
+            Destroy(gameObject);
+            return;
         }
-    }
-    // -----------------------------------------------------------------
 
-    void Start()
-    {
-        playersRemaining = allPlayers.Count;
-        
-        // Esconde el panel de victoria al inicio
-        if (winnerPanel != null)
-            winnerPanel.SetActive(false);
-            
-        UpdateScoreDisplay();
+        audioSource = GetComponent<AudioSource>();
     }
 
-    public void PlayerLost(GameObject player)
+    public void CheckGameState()
     {
-        // Nos aseguramos de que el jugador no se cuente dos veces si choca varias veces
-        if (player.activeSelf) 
+        if (gameEnded) return;
+
+        int alivePlayers = 0;
+        GameObject lastPlayerAlive = null;
+
+        foreach (GameObject player in players)
         {
-            playersRemaining--;
-            Debug.Log(player.name + " ha perdido. Quedan: " + playersRemaining);
-
-            CheckWinCondition();
-        }
-    }
-
-    void CheckWinCondition()
-    {
-        // 1. CONDICIÓN DE VICTORIA: Queda solo 1 jugador (o ninguno)
-        if (playersRemaining <= 1)
-        {
-            Time.timeScale = 0; // Detiene el tiempo en el juego
-            
-            // Encuentra al ganador (el último activo)
-            string winnerName = "Nadie";
-            foreach (var player in allPlayers)
+            if (player.activeInHierarchy)
             {
-                if (player.activeSelf)
-                {
-                    winnerName = player.name;
-                    break;
-                }
+                alivePlayers++;
+                lastPlayerAlive = player;
             }
+        }
 
-            // Muestra la imagen de "Winner"
-            if (winnerPanel != null)
-            {
-                winnerPanel.SetActive(true);
-            }
-            
-            Debug.Log("Juego Terminado. Ganador: " + winnerName);
-        }
-    }
-    
-    // 2. CONTADOR DE SALTOS
-    public void AddScore()
-    {
-        score++;
-        UpdateScoreDisplay();
-    }
-    
-    void UpdateScoreDisplay()
-    {
-        if (scoreText != null)
+        if (alivePlayers == 1)
         {
-            scoreText.text = "Saltos: " + score.ToString();
+            gameEnded = true;
+            StartCoroutine(EndGame(lastPlayerAlive));
         }
+    }
+
+    IEnumerator EndGame(GameObject winner)
+    {
+        // 🔥 Perdedor x2
+        audioSource.PlayOneShot(loseSound);
+        yield return new WaitForSeconds(loseSound.length);
+        audioSource.PlayOneShot(loseSound);
+
+        yield return new WaitForSeconds(0.5f);
+
+        // 🏆 Ganador x2
+        audioSource.PlayOneShot(winSound);
+        yield return new WaitForSeconds(winSound.length);
+        audioSource.PlayOneShot(winSound);
+
+        Debug.Log("GANADOR: " + winner.name);
     }
 }
