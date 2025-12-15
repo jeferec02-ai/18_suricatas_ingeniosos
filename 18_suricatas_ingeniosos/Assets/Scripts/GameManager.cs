@@ -1,72 +1,77 @@
 using UnityEngine;
-using System.Collections;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-    // Singleton (ambas formas)
-    public static GameManager instance;
-    public static GameManager Instance => instance;
-
     [Header("Players")]
     public GameObject[] players;
 
-    [Header("Audio")]
-    public AudioClip loseSound;
-    public AudioClip winSound;
+    [Header("Victory")]
+    public GameObject victoryCanvas;
+    public AudioClip winnerClip;       // Audio de victoria
+    public AudioClip playerLostClip;   // Audio cuando un jugador muere
 
-    private AudioSource audioSource;
     private bool gameEnded = false;
 
-    void Awake()
+    void Start()
     {
-        if (instance == null)
-            instance = this;
-        else
-        {
-            Destroy(gameObject);
-            return;
-        }
-
-        audioSource = GetComponent<AudioSource>();
+        victoryCanvas.SetActive(false);
     }
 
-    public void CheckGameState()
+    // Llamado cuando un jugador pierde (desde RopeKill)
+    public void PlayerLost()
     {
         if (gameEnded) return;
 
         int alivePlayers = 0;
-        GameObject lastPlayerAlive = null;
 
-        foreach (GameObject player in players)
+        foreach (GameObject p in players)
         {
-            if (player.activeInHierarchy)
-            {
+            if (p != null && p.activeInHierarchy)
                 alivePlayers++;
-                lastPlayerAlive = player;
+            else
+            {
+                // 🔊 Si el jugador murió, reproducir audio
+                if (playerLostClip != null)
+                    AudioSource.PlayClipAtPoint(playerLostClip, Camera.main.transform.position);
             }
         }
 
-        if (alivePlayers == 1)
+        if (alivePlayers <= 1)
         {
-            gameEnded = true;
-            StartCoroutine(EndGame(lastPlayerAlive));
+            EndGame();
         }
     }
 
-    IEnumerator EndGame(GameObject winner)
+    void EndGame()
     {
-        // 🔥 Perdedor x2
-        audioSource.PlayOneShot(loseSound);
-        yield return new WaitForSeconds(loseSound.length);
-        audioSource.PlayOneShot(loseSound);
+        gameEnded = true;
 
-        yield return new WaitForSeconds(0.5f);
+        // 🔊 Reproducir audio de victoria
+        if (winnerClip != null)
+            AudioSource.PlayClipAtPoint(winnerClip, Camera.main.transform.position);
 
-        // 🏆 Ganador x2
-        audioSource.PlayOneShot(winSound);
-        yield return new WaitForSeconds(winSound.length);
-        audioSource.PlayOneShot(winSound);
+        victoryCanvas.SetActive(true);
 
-        Debug.Log("GANADOR: " + winner.name);
+        Invoke(nameof(PauseGame), 0.5f); // Delay para que se escuche el audio
+    }
+
+    void PauseGame()
+    {
+        Time.timeScale = 0f;
+    }
+
+    // BOTÓN "VOLVER A JUGAR"
+    public void RestartGame()
+    {
+        Time.timeScale = 1f;
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
+    // BOTÓN "SALIR"
+    public void QuitGame()
+    {
+        Application.Quit();
     }
 }
+

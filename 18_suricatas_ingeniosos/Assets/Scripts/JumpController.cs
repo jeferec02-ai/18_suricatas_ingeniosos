@@ -1,25 +1,34 @@
 using UnityEngine;
+using System.Collections;
 
 public class JumpController : MonoBehaviour
 {
-    [Header("Jump Settings")]
-    public float jumpHeight = 2f;
-    public float jumpAirTime = 0.5f;
+    [Header("Input")]
     public KeyCode jumpKey = KeyCode.Space;
+
+    [Header("Jump Settings")]
+    public float jumpHeight = 1.2f;      // Qué tan alto sube
+    public float jumpDuration = 0.5f;    // Cuánto dura el salto total
 
     [Header("Audio")]
     public AudioClip jumpSound;
 
-    private bool isJumping = false;
-    private Vector3 startPosition;
-
     private Animator animator;
     private AudioSource audioSource;
+    private bool isJumping = false;
+    private Vector3 startPosition;
 
     void Awake()
     {
         animator = GetComponentInChildren<Animator>();
         audioSource = GetComponent<AudioSource>();
+
+        if (animator == null)
+            Debug.LogError("Animator no encontrado en " + gameObject.name);
+
+        if (audioSource == null)
+            Debug.LogError("AudioSource no encontrado en " + gameObject.name);
+
         startPosition = transform.position;
     }
 
@@ -27,35 +36,45 @@ public class JumpController : MonoBehaviour
     {
         if (Input.GetKeyDown(jumpKey) && !isJumping)
         {
-            StartJump();
+            StartCoroutine(JumpRoutine());
         }
     }
 
-    void StartJump()
+    IEnumerator JumpRoutine()
     {
         isJumping = true;
 
-        // Animación
-        if (animator != null)
-        {
-            animator.SetTrigger("Jump");
-        }
+        // 🎬 animación
+        animator.ResetTrigger("Jump");
+        animator.SetTrigger("Jump");
 
-        // 🔊 Sonido del salto
-        if (audioSource != null && jumpSound != null)
-        {
-            audioSource.Stop();
+        // 🔊 sonido
+        if (jumpSound != null)
             audioSource.PlayOneShot(jumpSound);
+
+        float halfDuration = jumpDuration / 2f;
+        float elapsed = 0f;
+
+        // SUBE
+        while (elapsed < halfDuration)
+        {
+            float t = elapsed / halfDuration;
+            transform.position = startPosition + Vector3.up * Mathf.Lerp(0, jumpHeight, t);
+            elapsed += Time.deltaTime;
+            yield return null;
         }
 
-        // Subir
-        transform.position = startPosition + Vector3.up * jumpHeight;
+        elapsed = 0f;
 
-        Invoke(nameof(EndJump), jumpAirTime);
-    }
+        // BAJA
+        while (elapsed < halfDuration)
+        {
+            float t = elapsed / halfDuration;
+            transform.position = startPosition + Vector3.up * Mathf.Lerp(jumpHeight, 0, t);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
 
-    void EndJump()
-    {
         transform.position = startPosition;
         isJumping = false;
     }
